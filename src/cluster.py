@@ -6,9 +6,10 @@ from copy import deepcopy, copy
 """
 	assuming the pickup points to be sorted
 """
+'''
 
-
-def add_to_cur_mst(distances, source, sink, current_mst, point, max_allowed_dist, minimise_distance=False):
+'''
+def add_to_cur_mst(distances, source, sink, current_mst, point, max_allowed_dist, max_number, minimise_distance=False):
 	"""
 		Takes input as mst in adjacency list representation, and point to be added
 		returns the new formed mst, or raises error if given point can not be added
@@ -44,6 +45,9 @@ def add_to_cur_mst(distances, source, sink, current_mst, point, max_allowed_dist
 			# print(f'for point {point} max distance reached {new_total_dist}')
 			raise Exception("Exceeded max allowed distance")
 
+		elif len(current_mst[source]) == max_number:
+			raise Exception('Max capacity reached')
+
 		#
 		if minimise_distance:
 			if distances[source][point] + distances[point][sink] < distances[new_total_dist[-1]] + distances[new_total_dist[1]]:
@@ -58,7 +62,7 @@ def add_to_cur_mst(distances, source, sink, current_mst, point, max_allowed_dist
 		return current_mst
 
 
-def clusters(distances, source, sink, pickup_points, max_allowed_dist):
+def clusters(distances, source, sink, pickup_points, max_allowed_dist, max_number):
 	"""
 		Takes input as list of points sorted by their x-coordinates, and position of source, sink
 		returns list of Trees of clusters.
@@ -79,14 +83,14 @@ def clusters(distances, source, sink, pickup_points, max_allowed_dist):
 		# current_mst = add_to_cur_mst(distances, source, sink, current_mst, point, max_allowed_dist)
 
 		try:
-			current_mst = add_to_cur_mst(distances, source, sink, current_mst, point, max_allowed_dist)
+			current_mst = add_to_cur_mst(distances, source, sink, current_mst, point, max_number, max_allowed_dist)
 			# if it exceeds the max threshold of distance that vehicle can travel, form a new cluster and add point to it
 		except Exception as e:
-			pprint(f'Error {e} raised on point {point}. appending {current_mst}')
+			# pprint(f'Error {e} raised on point {point}. appending {current_mst}')
 			clusters.append(current_mst)
 			current_mst = defaultdict(list)
 			current_mst[source] = [source, sink]
-			current_mst = add_to_cur_mst(distances, source, sink, current_mst, point, max_allowed_dist)
+			current_mst = add_to_cur_mst(distances, source, sink, current_mst, point, max_number, max_allowed_dist)
 
 
 	clusters.append(current_mst)
